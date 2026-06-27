@@ -5,6 +5,7 @@ import { formatKm } from '../lib/format.js'
 import Header from '../components/Header.jsx'
 import AdicionarFotoModal from '../components/AdicionarFotoModal.jsx'
 import RegistrarManutencaoModal from '../components/RegistrarManutencaoModal.jsx'
+import CriarAnuncioModal from '../components/CriarAnuncioModal.jsx'
 import styles from './MeusCarros.module.css'
 
 export default function MeusCarros() {
@@ -71,6 +72,15 @@ export default function MeusCarros() {
               </div>
 
               <div className={styles.acoes}>
+                {!c.tem_anuncio_ativo && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setModal({ tipo: 'anuncio', chassi: c.chassi })}
+                  >
+                    Criar anuncio
+                  </button>
+                )}
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -100,6 +110,13 @@ export default function MeusCarros() {
       )}
       {modal?.tipo === 'manutencao' && (
         <RegistrarManutencaoModal
+          chassi={modal.chassi}
+          onFechar={() => setModal(null)}
+          onSucesso={aoConcluir}
+        />
+      )}
+      {modal?.tipo === 'anuncio' && (
+        <CriarAnuncioModal
           chassi={modal.chassi}
           onFechar={() => setModal(null)}
           onSucesso={aoConcluir}

@@ -1,4 +1,4 @@
-import { getToken } from './auth.js'
+import { getToken, getSession } from './auth.js'
 import { ANUNCIOS, MEUS_CARROS, MINHAS_COMPRAS } from './mockData.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
@@ -66,6 +66,11 @@ export function cadastrarCarro(dados) {
 export function listarMinhasCompras() {
   if (USE_MOCK) return mockLista(MINHAS_COMPRAS)
   return http('/vendas/minhas-compras')
+}
+
+export function criarAnuncio(dados) {
+  if (USE_MOCK) return mockCriarAnuncio(dados)
+  return http('/anuncios', { method: 'POST', body: dados })
 }
 
 export function adicionarFoto(chassi, url_foto) {
@@ -148,6 +153,35 @@ function mockRegistrarManutencao(chassi, { descricao, custo }) {
 
 function hoje() {
   return new Date().toISOString().slice(0, 10)
+}
+
+function mockCriarAnuncio({ chassi_carro, valor_anunciado }) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const carro = MEUS_CARROS.find((c) => c.chassi === chassi_carro)
+      if (!carro) {
+        reject(new ApiError('Carro nao encontrado.', 404))
+        return
+      }
+      if (carro.tem_anuncio_ativo) {
+        reject(new ApiError('Este veiculo ja possui um anuncio ativo.', 400))
+        return
+      }
+      const sessao = getSession()
+      const id_anuncio = Math.max(0, ...ANUNCIOS.map((a) => a.id_anuncio)) + 1
+      carro.tem_anuncio_ativo = true
+      ANUNCIOS.push({
+        id_anuncio,
+        valor_anunciado,
+        data_publicacao: hoje(),
+        status: 'ATIVO',
+        anunciante: { cpf: sessao.cpf, nome: sessao.nome },
+        carro: { ...carro },
+        manutencoes: carro.manutencoes,
+      })
+      resolve({ id_anuncio, status: 'ATIVO' })
+    }, 400)
+  })
 }
 
 function mockLista(dados) {
