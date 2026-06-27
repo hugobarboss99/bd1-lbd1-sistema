@@ -1,4 +1,5 @@
 import { getToken } from './auth.js'
+import { ANUNCIOS } from './mockData.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 // Mock ligado por padrao: backend ainda nao existe. Desliga com VITE_USE_MOCK=false.
@@ -47,6 +48,14 @@ export function cadastrar(dados) {
   return http('/auth/cadastro', { method: 'POST', body: dados })
 }
 
+export function listarAnuncios(filtros = {}) {
+  if (USE_MOCK) return mockListarAnuncios(filtros)
+  const qs = new URLSearchParams(
+    Object.entries(filtros).filter(([, v]) => v !== '' && v != null),
+  ).toString()
+  return http(`/anuncios${qs ? `?${qs}` : ''}`)
+}
+
 //Mock
 
 function mockLogin({ login, senha }, isAdmin) {
@@ -75,6 +84,33 @@ function mockCadastro({ cpf, nome, login }) {
         return
       }
       resolve({ cpf, nome, login })
+    }, 400)
+  })
+}
+
+function mockListarAnuncios({ marca, modelo, valor_min, valor_max, ano_min, ano_max }) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const lista = ANUNCIOS.filter((a) => a.status === 'ATIVO')
+        .filter((a) => !marca || a.carro.marca.toLowerCase().includes(marca.toLowerCase()))
+        .filter((a) => !modelo || a.carro.modelo.toLowerCase().includes(modelo.toLowerCase()))
+        .filter((a) => valor_min == null || a.valor_anunciado >= valor_min)
+        .filter((a) => valor_max == null || a.valor_anunciado <= valor_max)
+        .filter((a) => ano_min == null || a.carro.ano >= ano_min)
+        .filter((a) => ano_max == null || a.carro.ano <= ano_max)
+        .map((a) => ({
+          id_anuncio: a.id_anuncio,
+          valor_anunciado: a.valor_anunciado,
+          data_publicacao: a.data_publicacao,
+          foto_capa: a.carro.fotos[0] ?? null,
+          carro: {
+            marca: a.carro.marca,
+            modelo: a.carro.modelo,
+            ano: a.carro.ano,
+            km_rodados: a.carro.km_rodados,
+          },
+        }))
+      resolve(lista)
     }, 400)
   })
 }

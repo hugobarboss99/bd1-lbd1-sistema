@@ -1,0 +1,35 @@
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6);
+}
+
+.titulo {
+  margin: 0 0 var(--space-6);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+
+.filtros .input {
+  width: auto;
+  flex: 1 1 160px;
+}
+
+.aviso {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-6);
+}
