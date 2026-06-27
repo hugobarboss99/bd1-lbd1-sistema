@@ -50,6 +50,23 @@ export const MINHAS_COMPRAS = [
   },
 ]
 
+export const MINHAS_VENDAS = [
+  {
+    id_venda: 60,
+    id_anuncio: 4,
+    valor: 52000.0,
+    data_venda: '2026-06-18',
+    comprador: { nome: 'Maria Silva' },
+  },
+  {
+    id_venda: 62,
+    id_anuncio: 7,
+    valor: 28000.0,
+    data_venda: '2026-06-24',
+    comprador: { nome: 'Carlos Lima' },
+  },
+]
+
 export const ANUNCIOS = [
   {
     id_anuncio: 1,

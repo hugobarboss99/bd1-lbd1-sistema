@@ -26,6 +26,9 @@ export default function Header() {
             <Link to="/vendas/minhas-compras" className={styles.link}>
               Minhas Compras
             </Link>
+            <Link to="/vendas/minhas-vendas" className={styles.link}>
+              Minhas Vendas
+            </Link>
             <span className={styles.nome}>{sessao.nome}</span>
             <button type="button" className={styles.sair} onClick={sair}>
               Sair

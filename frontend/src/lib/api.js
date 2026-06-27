@@ -1,5 +1,5 @@
 import { getToken, getSession } from './auth.js'
-import { ANUNCIOS, MEUS_CARROS, MINHAS_COMPRAS } from './mockData.js'
+import { ANUNCIOS, MEUS_CARROS, MINHAS_COMPRAS, MINHAS_VENDAS } from './mockData.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 // Mock ligado por padrao: backend ainda nao existe. Desliga com VITE_USE_MOCK=false.
@@ -68,9 +68,24 @@ export function listarMinhasCompras() {
   return http('/vendas/minhas-compras')
 }
 
+export function listarMinhasVendas() {
+  if (USE_MOCK) return mockLista(MINHAS_VENDAS)
+  return http('/vendas/minhas-vendas')
+}
+
 export function criarAnuncio(dados) {
   if (USE_MOCK) return mockCriarAnuncio(dados)
   return http('/anuncios', { method: 'POST', body: dados })
+}
+
+export function editarAnuncio(id, valor_anunciado) {
+  if (USE_MOCK) return mockEditarAnuncio(id, valor_anunciado)
+  return http(`/anuncios/${id}`, { method: 'PUT', body: { valor_anunciado } })
+}
+
+export function removerAnuncio(id) {
+  if (USE_MOCK) return mockRemoverAnuncio(id)
+  return http(`/anuncios/${id}`, { method: 'DELETE' })
 }
 
 export function adicionarFoto(chassi, url_foto) {
@@ -184,6 +199,40 @@ function mockCriarAnuncio({ chassi_carro, valor_anunciado }) {
   })
 }
 
+function mockEditarAnuncio(id, valor_anunciado) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const anuncio = ANUNCIOS.find((a) => a.id_anuncio === Number(id))
+      if (!anuncio) {
+        reject(new ApiError('Anuncio nao encontrado.', 404))
+        return
+      }
+      if (anuncio.anunciante.cpf !== getSession()?.cpf) {
+        reject(new ApiError('Voce nao tem permissao para editar este anuncio.', 403))
+        return
+      }
+      anuncio.valor_anunciado = valor_anunciado
+      resolve({ id_anuncio: anuncio.id_anuncio, valor_anunciado })
+    }, 400)
+  })
+}
+
+function mockRemoverAnuncio(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const i = ANUNCIOS.findIndex((a) => a.id_anuncio === Number(id))
+      if (i === -1) {
+        reject(new ApiError('Anuncio nao encontrado.', 404))
+        return
+      }
+      const [removido] = ANUNCIOS.splice(i, 1)
+      const carro = MEUS_CARROS.find((c) => c.chassi === removido.carro.chassi)
+      if (carro) carro.tem_anuncio_ativo = false
+      resolve(null)
+    }, 400)
+  })
+}
+
 function mockLista(dados) {
   return new Promise((resolve) => {
     setTimeout(() => resolve([...dados]), 400)
@@ -202,7 +251,7 @@ function mockCadastrarCarro(dados) {
         return
       }
       const fotos = dados.fotos ?? []
-      MEUS_CARROS.push({ ...dados, fotos, tem_anuncio_ativo: false })
+      MEUS_CARROS.push({ ...dados, fotos, tem_anuncio_ativo: false, manutencoes: [] })
       resolve({ chassi: dados.chassi, fotos_cadastradas: fotos.length })
     }, 400)
   })

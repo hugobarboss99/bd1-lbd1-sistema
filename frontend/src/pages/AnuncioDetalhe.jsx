@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { obterAnuncio } from '../lib/api.js'
+import { obterAnuncio, removerAnuncio } from '../lib/api.js'
 import { getSession } from '../lib/auth.js'
 import { formatBRL, formatKm, formatData } from '../lib/format.js'
 import Header from '../components/Header.jsx'
+import EditarAnuncioModal from '../components/EditarAnuncioModal.jsx'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 import styles from './AnuncioDetalhe.module.css'
 
 export default function AnuncioDetalhe() {
@@ -14,6 +16,11 @@ export default function AnuncioDetalhe() {
   const [anuncio, setAnuncio] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+
+  const [editando, setEditando] = useState(false)
+  const [confirmandoRemocao, setConfirmandoRemocao] = useState(false)
+  const [removendo, setRemovendo] = useState(false)
+  const [erroRemocao, setErroRemocao] = useState('')
 
   useEffect(() => {
     setCarregando(true)
@@ -32,6 +39,23 @@ export default function AnuncioDetalhe() {
       return
     }
     navigate(`/anuncios/${id}/comprar`)
+  }
+
+  function aoEditar(novoValor) {
+    setAnuncio((a) => ({ ...a, valor_anunciado: novoValor }))
+    setEditando(false)
+  }
+
+  async function remover() {
+    setErroRemocao('')
+    setRemovendo(true)
+    try {
+      await removerAnuncio(id)
+      navigate('/carros/meus')
+    } catch (e) {
+      setErroRemocao(e.message)
+      setRemovendo(false)
+    }
   }
 
   return (
@@ -73,7 +97,22 @@ export default function AnuncioDetalhe() {
               </dl>
 
               {ehDono ? (
-                <p className={styles.aviso}>Este anuncio e seu.</p>
+                <div className={styles.acoesDono}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setEditando(true)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => setConfirmandoRemocao(true)}
+                  >
+                    Remover anuncio
+                  </button>
+                </div>
               ) : (
                 <button type="button" className="btn btn-primary" onClick={comprar}>
                   Comprar
@@ -81,7 +120,7 @@ export default function AnuncioDetalhe() {
               )}
             </aside>
 
-            {anuncio.manutencoes.length > 0 && (
+            {anuncio.manutencoes?.length > 0 && (
               <section className={styles.manutencoes}>
                 <h2 className={styles.secaoTitulo}>Historico de manutencoes</h2>
                 <ul className={styles.listaManutencao}>
@@ -99,6 +138,27 @@ export default function AnuncioDetalhe() {
           </div>
         )}
       </main>
+
+      {editando && (
+        <EditarAnuncioModal
+          id={id}
+          valorAtual={anuncio.valor_anunciado}
+          onFechar={() => setEditando(false)}
+          onSucesso={aoEditar}
+        />
+      )}
+      {confirmandoRemocao && (
+        <ConfirmModal
+          titulo="Remover anuncio"
+          mensagem="Tem certeza que deseja remover este anuncio? Esta acao nao pode ser desfeita."
+          confirmarLabel="Remover"
+          perigo
+          processando={removendo}
+          erro={erroRemocao}
+          onConfirmar={remover}
+          onCancelar={() => setConfirmandoRemocao(false)}
+        />
+      )}
     </>
   )
 }

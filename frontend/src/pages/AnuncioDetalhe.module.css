@@ -89,6 +89,11 @@
   font-size: 15px;
 }
 
+.acoesDono {
+  display: flex;
+  gap: var(--space-3);
+}
+
 .manutencoes {
   grid-column: 1 / -1;
 }

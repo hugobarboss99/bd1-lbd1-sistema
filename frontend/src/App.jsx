@@ -6,6 +6,7 @@ import AnuncioDetalhe from './pages/AnuncioDetalhe.jsx'
 import MeusCarros from './pages/MeusCarros.jsx'
 import CadastrarVeiculo from './pages/CadastrarVeiculo.jsx'
 import MinhasCompras from './pages/MinhasCompras.jsx'
+import MinhasVendas from './pages/MinhasVendas.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
 
 export default function App() {
@@ -36,6 +37,14 @@ export default function App() {
         element={
           <RequireAuth>
             <MinhasCompras />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/vendas/minhas-vendas"
+        element={
+          <RequireAuth>
+            <MinhasVendas />
           </RequireAuth>
         }
       />
