@@ -30,6 +30,26 @@ export const MEUS_CARROS = [
   },
 ]
 
+export const MINHAS_COMPRAS = [
+  {
+    id_venda: 55,
+    valor: 35000.0,
+    data_venda: '2026-06-26',
+    carro: { marca: 'Fiat', modelo: 'Uno', placa: 'ABC1234' },
+    pagamentos: [
+      { parcela: 1, valor: 17500.0, status_pagamento: 'PAGO' },
+      { parcela: 2, valor: 17500.0, status_pagamento: 'PENDENTE' },
+    ],
+  },
+  {
+    id_venda: 58,
+    valor: 41000.0,
+    data_venda: '2026-06-21',
+    carro: { marca: 'Hyundai', modelo: 'HB20', placa: 'PQR1234' },
+    pagamentos: [{ parcela: 1, valor: 41000.0, status_pagamento: 'PAGO' }],
+  },
+]
+
 export const ANUNCIOS = [
   {
     id_anuncio: 1,

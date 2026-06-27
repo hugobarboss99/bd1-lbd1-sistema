@@ -1,5 +1,5 @@
 import { getToken } from './auth.js'
-import { ANUNCIOS, MEUS_CARROS } from './mockData.js'
+import { ANUNCIOS, MEUS_CARROS, MINHAS_COMPRAS } from './mockData.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 // Mock ligado por padrao: backend ainda nao existe. Desliga com VITE_USE_MOCK=false.
@@ -61,6 +61,11 @@ export function listarMeusCarros() {
 export function cadastrarCarro(dados) {
   if (USE_MOCK) return mockCadastrarCarro(dados)
   return http('/carros', { method: 'POST', body: dados })
+}
+
+export function listarMinhasCompras() {
+  if (USE_MOCK) return mockLista(MINHAS_COMPRAS)
+  return http('/vendas/minhas-compras')
 }
 
 export function adicionarFoto(chassi, url_foto) {
@@ -145,10 +150,14 @@ function hoje() {
   return new Date().toISOString().slice(0, 10)
 }
 
-function mockListarMeusCarros() {
+function mockLista(dados) {
   return new Promise((resolve) => {
-    setTimeout(() => resolve([...MEUS_CARROS]), 400)
+    setTimeout(() => resolve([...dados]), 400)
   })
+}
+
+function mockListarMeusCarros() {
+  return mockLista(MEUS_CARROS)
 }
 
 function mockCadastrarCarro(dados) {
