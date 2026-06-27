@@ -68,7 +68,7 @@ export default function AnuncioDetalhe() {
         {anuncio && (
           <div className={styles.layout}>
             <div className={styles.foto}>
-              {anuncio.carro.fotos[0] ? (
+              {anuncio.carro.fotos?.[0] ? (
                 <img
                   src={anuncio.carro.fotos[0]}
                   alt={`${anuncio.carro.marca} ${anuncio.carro.modelo}`}

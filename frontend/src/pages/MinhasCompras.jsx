@@ -44,7 +44,7 @@ export default function MinhasCompras() {
               </div>
 
               <ul className={styles.parcelas}>
-                {c.pagamentos.map((p) => (
+                {(c.pagamentos ?? []).map((p) => (
                   <li key={p.parcela} className={styles.parcela}>
                     <span>Parcela {p.parcela}</span>
                     <span>{formatBRL(p.valor)}</span>

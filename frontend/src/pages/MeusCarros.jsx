@@ -52,7 +52,7 @@ export default function MeusCarros() {
           {carros.map((c) => (
             <article key={c.chassi} className={`card ${styles.carro}`}>
               <div className={styles.foto}>
-                {c.fotos[0] ? (
+                {c.fotos?.[0] ? (
                   <img src={c.fotos[0]} alt={`${c.marca} ${c.modelo}`} />
                 ) : (
                   <span className={styles.semFoto}>Sem foto</span>

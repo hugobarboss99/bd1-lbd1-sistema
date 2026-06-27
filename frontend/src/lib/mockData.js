@@ -60,7 +60,7 @@ export const MINHAS_VENDAS = [
   },
   {
     id_venda: 62,
-    id_anuncio: 7,
+    id_anuncio: 6,
     valor: 28000.0,
     data_venda: '2026-06-24',
     comprador: { nome: 'Carlos Lima' },
