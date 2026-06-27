@@ -48,6 +48,11 @@ export function cadastrar(dados) {
   return http('/auth/cadastro', { method: 'POST', body: dados })
 }
 
+export function obterAnuncio(id) {
+  if (USE_MOCK) return mockObterAnuncio(id)
+  return http(`/anuncios/${id}`)
+}
+
 export function listarAnuncios(filtros = {}) {
   if (USE_MOCK) return mockListarAnuncios(filtros)
   const qs = new URLSearchParams(
@@ -84,6 +89,19 @@ function mockCadastro({ cpf, nome, login }) {
         return
       }
       resolve({ cpf, nome, login })
+    }, 400)
+  })
+}
+
+function mockObterAnuncio(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const anuncio = ANUNCIOS.find((a) => a.id_anuncio === Number(id))
+      if (!anuncio) {
+        reject(new ApiError('Anuncio nao encontrado.', 404))
+        return
+      }
+      resolve(anuncio)
     }, 400)
   })
 }
