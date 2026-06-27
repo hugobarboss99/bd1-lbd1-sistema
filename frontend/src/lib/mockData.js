@@ -1,5 +1,32 @@
-// Fonte unica dos anuncios falsos. Vitrine e Detalhes leem daqui enquanto
-// VITE_USE_MOCK estiver ligado. Shape espelha o contrato de GET /anuncios/{id}.
+// Fonte unica dos dados falsos. Telas leem daqui enquanto VITE_USE_MOCK
+// estiver ligado. Shapes espelham o contrato da API.
+
+// Carros do usuario logado (mock entra como cpf 12345678901). Mutavel: o
+// cadastro de veiculo faz push aqui e persiste ate recarregar a pagina.
+export const MEUS_CARROS = [
+  {
+    chassi: '8AWZZZ377VT001100',
+    marca: 'Ford',
+    modelo: 'Ka',
+    ano: 2017,
+    km_rodados: 61000,
+    placa: 'XYZ0A01',
+    cor: 'Branco',
+    tem_anuncio_ativo: false,
+    fotos: [],
+  },
+  {
+    chassi: '8AWZZZ377VT002200',
+    marca: 'Renault',
+    modelo: 'Sandero',
+    ano: 2019,
+    km_rodados: 43000,
+    placa: 'XYZ0B02',
+    cor: 'Prata',
+    tem_anuncio_ativo: true,
+    fotos: [],
+  },
+]
 
 export const ANUNCIOS = [
   {

@@ -1,5 +1,5 @@
 import { getToken } from './auth.js'
-import { ANUNCIOS } from './mockData.js'
+import { ANUNCIOS, MEUS_CARROS } from './mockData.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 // Mock ligado por padrao: backend ainda nao existe. Desliga com VITE_USE_MOCK=false.
@@ -53,6 +53,16 @@ export function obterAnuncio(id) {
   return http(`/anuncios/${id}`)
 }
 
+export function listarMeusCarros() {
+  if (USE_MOCK) return mockListarMeusCarros()
+  return http('/carros/meus')
+}
+
+export function cadastrarCarro(dados) {
+  if (USE_MOCK) return mockCadastrarCarro(dados)
+  return http('/carros', { method: 'POST', body: dados })
+}
+
 export function listarAnuncios(filtros = {}) {
   if (USE_MOCK) return mockListarAnuncios(filtros)
   const qs = new URLSearchParams(
@@ -89,6 +99,26 @@ function mockCadastro({ cpf, nome, login }) {
         return
       }
       resolve({ cpf, nome, login })
+    }, 400)
+  })
+}
+
+function mockListarMeusCarros() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve([...MEUS_CARROS]), 400)
+  })
+}
+
+function mockCadastrarCarro(dados) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (MEUS_CARROS.some((c) => c.chassi === dados.chassi)) {
+        reject(new ApiError('Carro ja cadastrado.', 409))
+        return
+      }
+      const fotos = dados.fotos ?? []
+      MEUS_CARROS.push({ ...dados, fotos, tem_anuncio_ativo: false })
+      resolve({ chassi: dados.chassi, fotos_cadastradas: fotos.length })
     }, 400)
   })
 }
