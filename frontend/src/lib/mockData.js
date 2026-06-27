@@ -14,6 +14,7 @@ export const MEUS_CARROS = [
     cor: 'Branco',
     tem_anuncio_ativo: false,
     fotos: [],
+    manutencoes: [],
   },
   {
     chassi: '8AWZZZ377VT002200',
@@ -25,6 +26,7 @@ export const MEUS_CARROS = [
     cor: 'Prata',
     tem_anuncio_ativo: true,
     fotos: [],
+    manutencoes: [],
   },
 ]
 

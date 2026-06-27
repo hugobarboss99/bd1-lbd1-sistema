@@ -63,6 +63,16 @@ export function cadastrarCarro(dados) {
   return http('/carros', { method: 'POST', body: dados })
 }
 
+export function adicionarFoto(chassi, url_foto) {
+  if (USE_MOCK) return mockAdicionarFoto(chassi, url_foto)
+  return http(`/carros/${chassi}/fotos`, { method: 'POST', body: { url_foto } })
+}
+
+export function registrarManutencao(chassi, dados) {
+  if (USE_MOCK) return mockRegistrarManutencao(chassi, dados)
+  return http(`/carros/${chassi}/manutencoes`, { method: 'POST', body: dados })
+}
+
 export function listarAnuncios(filtros = {}) {
   if (USE_MOCK) return mockListarAnuncios(filtros)
   const qs = new URLSearchParams(
@@ -101,6 +111,38 @@ function mockCadastro({ cpf, nome, login }) {
       resolve({ cpf, nome, login })
     }, 400)
   })
+}
+
+function mockAdicionarFoto(chassi, url_foto) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const carro = MEUS_CARROS.find((c) => c.chassi === chassi)
+      if (!carro) {
+        reject(new ApiError('Carro nao encontrado.', 404))
+        return
+      }
+      carro.fotos.push(url_foto)
+      resolve({ chassi_carro: chassi, sequencia_foto: carro.fotos.length })
+    }, 400)
+  })
+}
+
+function mockRegistrarManutencao(chassi, { descricao, custo }) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const carro = MEUS_CARROS.find((c) => c.chassi === chassi)
+      if (!carro) {
+        reject(new ApiError('Carro nao encontrado.', 404))
+        return
+      }
+      carro.manutencoes.push({ descricao, custo, data_manutencao: hoje() })
+      resolve({ chassi_carro: chassi, sequencia_manutencao: carro.manutencoes.length })
+    }, 400)
+  })
+}
+
+function hoje() {
+  return new Date().toISOString().slice(0, 10)
 }
 
 function mockListarMeusCarros() {
