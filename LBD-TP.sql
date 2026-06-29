@@ -11,6 +11,7 @@ DROP TABLE ADMINISTRADOR CASCADE CONSTRAINTS;
 DROP TABLE USUARIO CASCADE CONSTRAINTS;
 DROP TABLE ENDERECO CASCADE CONSTRAINTS;
 DROP TABLE PESSOA CASCADE CONSTRAINTS;
+DROP TABLE FOTO_CARRO CASCADE CONSTRAINTS;
 
 DROP SEQUENCE seq_anuncio;
 DROP SEQUENCE seq_venda;
@@ -138,13 +139,22 @@ CREATE TABLE AUDITORIA_PRECO_ANUNCIO (
     PRIMARY KEY (id_anuncio, sequencia_auditoria)
 );
 
+-- TABELA: FOTO_ANUNCIO (entidade fraca de Anuncio - PK composta)
+
+CREATE TABLE FOTO_CARRO (
+    chassi_carro    VARCHAR2(17)   NOT NULL REFERENCES CARRO (chassi) ON DELETE CASCADE,
+    sequencia_foto  NUMBER(3)      DEFAULT 0 NOT NULL,
+    url_foto        VARCHAR2(500)  NOT NULL,
+    PRIMARY KEY (chassi_carro, sequencia_foto)
+);
+
 
 -- 13. TRIGGERS
 
 -- TRIGGER 1 (RN03): Impede mais de um anuncio ATIVO para o mesmo chassi
 
 CREATE OR REPLACE TRIGGER trg_unico_anuncio_ativo
-BEFORE INSERT OR UPDATE ON ANUNCIO
+BEFORE INSERT OR UPDATE OF status ON ANUNCIO
 FOR EACH ROW
 DECLARE
     v_qtd NUMBER;
@@ -152,7 +162,9 @@ BEGIN
     IF :NEW.status = 'ATIVO' THEN
         SELECT COUNT(*) INTO v_qtd
         FROM ANUNCIO
-        WHERE chassi_carro = :NEW.chassi_carro AND status = 'ATIVO' AND id_anuncio <> :NEW.id_anuncio;
+        WHERE chassi_carro = :NEW.chassi_carro
+          AND status = 'ATIVO'
+          AND id_anuncio <> :NEW.id_anuncio;
 
         IF v_qtd > 0 THEN
             RAISE_APPLICATION_ERROR(-20001, 'Este veiculo ja possui um anuncio ativo.');
@@ -370,5 +382,21 @@ BEGIN
     WHERE chassi_carro = :NEW.chassi_carro;
 
     :NEW.sequencia_manutencao := v_proxima_seq;
+END;
+/
+
+-- TRIGGER 13 (numeracao automatica): calcula a proxima sequencia de Foto
+
+CREATE OR REPLACE TRIGGER trg_numera_foto
+BEFORE INSERT ON FOTO_CARRO
+FOR EACH ROW
+DECLARE
+    v_proxima_seq NUMBER;
+BEGIN
+    SELECT NVL(MAX(sequencia_foto), 0) + 1 INTO v_proxima_seq
+    FROM FOTO_CARRO
+    WHERE chassi_carro = :NEW.chassi_carro;
+
+    :NEW.sequencia_foto := v_proxima_seq;
 END;
 /
