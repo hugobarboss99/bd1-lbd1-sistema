@@ -20,6 +20,11 @@ export default function Header() {
       <nav className={styles.nav}>
         {sessao ? (
           <>
+            {sessao.is_admin && (
+              <Link to="/admin/usuarios" className={styles.link}>
+                Administração
+              </Link>
+            )}
             <Link to="/carros/meus" className={styles.link}>
               Meus Carros
             </Link>

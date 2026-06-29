@@ -6,6 +6,7 @@ import { formatBRL, formatKm, formatData } from '../lib/format.js'
 import Header from '../components/Header.jsx'
 import EditarAnuncioModal from '../components/EditarAnuncioModal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import ConfirmarCompraModal from '../components/ConfirmarCompraModal.jsx'
 import styles from './AnuncioDetalhe.module.css'
 
 export default function AnuncioDetalhe() {
@@ -18,9 +19,11 @@ export default function AnuncioDetalhe() {
   const [erro, setErro] = useState('')
 
   const [editando, setEditando] = useState(false)
+  const [comprando, setComprando] = useState(false)
   const [confirmandoRemocao, setConfirmandoRemocao] = useState(false)
   const [removendo, setRemovendo] = useState(false)
   const [erroRemocao, setErroRemocao] = useState('')
+  const [mensagemCompra, setMensagemCompra] = useState('')
 
   useEffect(() => {
     setCarregando(true)
@@ -38,7 +41,8 @@ export default function AnuncioDetalhe() {
       navigate('/login')
       return
     }
-    navigate(`/anuncios/${id}/comprar`)
+    setMensagemCompra('')
+    setComprando(true)
   }
 
   function aoEditar(novoValor) {
@@ -64,6 +68,7 @@ export default function AnuncioDetalhe() {
       <main className={styles.main}>
         {carregando && <p className={styles.aviso}>Carregando...</p>}
         {erro && <div className="alert-error">{erro}</div>}
+        {mensagemCompra && <div className="alert-success">{mensagemCompra}</div>}
 
         {anuncio && (
           <div className={styles.layout}>
@@ -157,6 +162,16 @@ export default function AnuncioDetalhe() {
           erro={erroRemocao}
           onConfirmar={remover}
           onCancelar={() => setConfirmandoRemocao(false)}
+        />
+      )}
+      {comprando && anuncio && (
+        <ConfirmarCompraModal
+          anuncio={anuncio}
+          onFechar={() => setComprando(false)}
+          onSucesso={(mensagem) => {
+            setMensagemCompra(mensagem)
+            setComprando(false)
+          }}
         />
       )}
     </>

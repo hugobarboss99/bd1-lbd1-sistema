@@ -181,3 +181,78 @@ export const ANUNCIOS = [
     manutencoes: [],
   },
 ]
+
+export const USUARIOS_ADMIN = [
+  {
+    cpf: '12345678901',
+    nome: 'Maria Silva',
+    login: 'maria.silva',
+    telefone: '(31) 99999-0001',
+    status: 'ATIVO',
+    is_admin: false,
+    criado_em: '2026-01-12',
+  },
+  {
+    cpf: '98765432100',
+    nome: 'Joao Souza',
+    login: 'joao.souza',
+    telefone: '(31) 98888-0002',
+    status: 'BLOQUEADO',
+    is_admin: false,
+    criado_em: '2026-02-03',
+    motivo_bloqueio: 'Cadastro sob analise',
+  },
+  {
+    cpf: '55566677788',
+    nome: 'Carlos Lima',
+    login: 'carlos.lima',
+    telefone: '(31) 97777-0003',
+    status: 'ATIVO',
+    is_admin: false,
+    criado_em: '2026-04-19',
+  },
+  {
+    cpf: '00011122233',
+    nome: 'Admin Demo',
+    login: 'admin.demo',
+    telefone: '(31) 96666-0004',
+    status: 'ATIVO',
+    is_admin: true,
+    criado_em: '2026-01-02',
+  },
+]
+
+export const ANUNCIOS_IRREGULARES_ADMIN = [
+  {
+    id_anuncio: 101,
+    valor_anunciado: 27800.0,
+    data_publicacao: '2026-06-11',
+    status: 'IRREGULAR',
+    motivo: 'Descricao incompleta e foto sem nitidez.',
+    anunciante: { cpf: '98765432100', nome: 'Joao Souza' },
+    carro: {
+      marca: 'Fiat',
+      modelo: 'Palio',
+      ano: 2015,
+      km_rodados: 98000,
+      placa: 'QWE1R23',
+      cor: 'Prata',
+    },
+  },
+  {
+    id_anuncio: 102,
+    valor_anunciado: 119500.0,
+    data_publicacao: '2026-06-19',
+    status: 'IRREGULAR',
+    motivo: 'Possivel valor fora da faixa informada para o veiculo.',
+    anunciante: { cpf: '55566677788', nome: 'Carlos Lima' },
+    carro: {
+      marca: 'Honda',
+      modelo: 'City',
+      ano: 2023,
+      km_rodados: 18000,
+      placa: 'ASD4F56',
+      cor: 'Branco',
+    },
+  },
+]
