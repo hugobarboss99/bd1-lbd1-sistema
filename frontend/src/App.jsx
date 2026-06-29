@@ -7,7 +7,9 @@ import MeusCarros from './pages/MeusCarros.jsx'
 import CadastrarVeiculo from './pages/CadastrarVeiculo.jsx'
 import MinhasCompras from './pages/MinhasCompras.jsx'
 import MinhasVendas from './pages/MinhasVendas.jsx'
+import AdminUsuarios from './pages/AdminUsuarios.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
+import RequireAdmin from './components/RequireAdmin.jsx'
 
 export default function App() {
   return (
@@ -16,6 +18,17 @@ export default function App() {
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/anuncios" element={<Vitrine />} />
       <Route path="/anuncios/:id" element={<AnuncioDetalhe />} />
+      <Route path="/admin" element={<Navigate to="/admin/usuarios" replace />} />
+      <Route
+        path="/admin/usuarios"
+        element={
+          <RequireAuth>
+            <RequireAdmin>
+              <AdminUsuarios />
+            </RequireAdmin>
+          </RequireAuth>
+        }
+      />
       <Route
         path="/carros/meus"
         element={
