@@ -1,4 +1,4 @@
-import { getToken, getSession } from './auth.js'
+import { getToken, getSession, clearSession } from './auth.js'
 import { ANUNCIOS, MEUS_CARROS, MINHAS_COMPRAS, MINHAS_VENDAS } from './mockData.js'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
@@ -28,7 +28,20 @@ async function http(path, { method = 'GET', body } = {}) {
   if (res.status === 204) return null
   const data = await res.json().catch(() => null)
   if (!res.ok) {
-    throw new ApiError(data?.erro ?? 'Erro inesperado.', res.status)
+    // So forca logout/redirecionamento se a chamada era autenticada (tinha
+    // token) e o backend recusou por token invalido/expirado. Login e
+    // cadastro tambem podem devolver 401, mas sem token enviado - nesse
+    // caso e so credencial errada, e a propria tela de login trata isso.
+    if (res.status === 401 && token) {
+      clearSession()
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
+    }
+    // FastAPI, por padrao, devolve HTTPException como {"detail": "..."},
+    // nao {"erro": "..."} como o contrato documenta. Aceitamos os dois pra
+    // nao perder a mensagem de erro real (RN04, RN07, RN08, RN11 etc.).
+    throw new ApiError(data?.erro ?? data?.detail ?? 'Erro inesperado.', res.status)
   }
   return data
 }
@@ -40,7 +53,7 @@ export function login(credenciais) {
 
 export function loginAdmin(credenciais) {
   if (USE_MOCK) return mockLogin(credenciais, true)
-  return http('/auth/login/adm', { method: 'POST', body: credenciais })
+  return http('/auth/login/admin', { method: 'POST', body: credenciais })
 }
 
 export function cadastrar(dados) {
@@ -73,6 +86,19 @@ export function listarMinhasVendas() {
   return http('/vendas/minhas-vendas')
 }
 
+export function confirmarCompra(id_anuncio) {
+  return http('/vendas', { method: 'POST', body: { id_anuncio } })
+}
+
+// tipo_pagamento aceita: DINHEIRO, CARTAO, BOLETO, FINANCIAMENTO, PIX
+// (ver PagamentoRequest em models.py / Tela 9.2 do contrato)
+export function registrarPagamento(idVenda, { valor, tipo_pagamento }) {
+  return http(`/vendas/${idVenda}/pagamentos`, {
+    method: 'POST',
+    body: { valor, tipo_pagamento },
+  })
+}
+
 export function criarAnuncio(dados) {
   if (USE_MOCK) return mockCriarAnuncio(dados)
   return http('/anuncios', { method: 'POST', body: dados })
@@ -98,12 +124,41 @@ export function registrarManutencao(chassi, dados) {
   return http(`/carros/${chassi}/manutencoes`, { method: 'POST', body: dados })
 }
 
-export function listarAnuncios(filtros = {}) {
-  if (USE_MOCK) return mockListarAnuncios(filtros)
+// Filtros aceitos pelo backend (ver anuncios_router.py): apenas marca,
+// valor_min, valor_max, ano_min. "modelo" e "ano_max" nao existem no
+// contrato nem no SQL do backend - nao adianta mandar, sao ignorados.
+export function listarAnuncios({ marca, valor_min, valor_max, ano_min } = {}) {
+  if (USE_MOCK) return mockListarAnuncios({ marca, valor_min, valor_max, ano_min })
   const qs = new URLSearchParams(
-    Object.entries(filtros).filter(([, v]) => v !== '' && v != null),
+    Object.entries({ marca, valor_min, valor_max, ano_min }).filter(
+      ([, v]) => v !== '' && v != null,
+    ),
   ).toString()
   return http(`/anuncios${qs ? `?${qs}` : ''}`)
+}
+
+// Admin - sem mock: essas telas so funcionam contra o backend real.
+// Shapes seguem exatamente o contrato (UsuarioAdminResponse usa
+// "status_conta", AnuncioAdminResponse usa "status" - nao confundir).
+
+export function listarUsuariosAdmin() {
+  return http('/admin/usuarios')
+}
+
+export function atualizarStatusUsuario(cpf, status_conta) {
+  return http(`/admin/usuarios/${cpf}/status`, { method: 'PUT', body: { status_conta } })
+}
+
+export function excluirUsuario(cpf) {
+  return http(`/admin/usuarios/${cpf}`, { method: 'DELETE' })
+}
+
+export function listarAnunciosAdmin() {
+  return http('/admin/anuncios')
+}
+
+export function removerAnuncioAdmin(id) {
+  return http(`/admin/anuncios/${id}`, { method: 'DELETE' })
 }
 
 //Mock
@@ -270,16 +325,14 @@ function mockObterAnuncio(id) {
   })
 }
 
-function mockListarAnuncios({ marca, modelo, valor_min, valor_max, ano_min, ano_max }) {
+function mockListarAnuncios({ marca, valor_min, valor_max, ano_min }) {
   return new Promise((resolve) => {
     setTimeout(() => {
       const lista = ANUNCIOS.filter((a) => a.status === 'ATIVO')
         .filter((a) => !marca || a.carro.marca.toLowerCase().includes(marca.toLowerCase()))
-        .filter((a) => !modelo || a.carro.modelo.toLowerCase().includes(modelo.toLowerCase()))
         .filter((a) => valor_min == null || a.valor_anunciado >= valor_min)
         .filter((a) => valor_max == null || a.valor_anunciado <= valor_max)
         .filter((a) => ano_min == null || a.carro.ano >= ano_min)
-        .filter((a) => ano_max == null || a.carro.ano <= ano_max)
         .map((a) => ({
           id_anuncio: a.id_anuncio,
           valor_anunciado: a.valor_anunciado,

@@ -124,10 +124,14 @@ def registrar_pagamento(id_venda: int, dados: PagamentoRequest, usuario: dict = 
             raise HTTPException(status_code=403, detail="Voce nao tem permissao para pagar esta venda.")
 
         try:
+            # Nao ha gateway de pagamento nem confirmacao externa neste
+            # sistema: o registro da parcela e a propria autodeclaracao do
+            # comprador de que o pagamento foi feito, entao ja nasce como
+            # PAGO em vez de usar o DEFAULT 'PENDENTE' da tabela.
             cursor.execute(
                 """
-                INSERT INTO PAGAMENTO (id_venda, valor, tipo_pagamento)
-                VALUES (:id_venda, :valor, :tipo)
+                INSERT INTO PAGAMENTO (id_venda, valor, tipo_pagamento, status_pagamento)
+                VALUES (:id_venda, :valor, :tipo, 'PAGO')
                 """,
                 {"id_venda": id_venda, "valor": dados.valor, "tipo": dados.tipo_pagamento},
             )

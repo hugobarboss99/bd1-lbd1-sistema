@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listarMeusCarros } from '../lib/api.js'
-import { formatKm } from '../lib/format.js'
+import { formatKm, formatBRL, formatData } from '../lib/format.js'
 import Header from '../components/Header.jsx'
 import AdicionarFotoModal from '../components/AdicionarFotoModal.jsx'
 import RegistrarManutencaoModal from '../components/RegistrarManutencaoModal.jsx'
@@ -69,6 +69,24 @@ export default function MeusCarros() {
                 <span className={c.tem_anuncio_ativo ? styles.badgeAtivo : styles.badge}>
                   {c.tem_anuncio_ativo ? 'Anuncio ativo' : 'Sem anuncio'}
                 </span>
+
+                {c.manutencoes?.length > 0 ? (
+                  <details className={styles.manutencoes}>
+                    <summary>
+                      {c.manutencoes.length}{' '}
+                      {c.manutencoes.length === 1 ? 'manutencao registrada' : 'manutencoes registradas'}
+                    </summary>
+                    <ul>
+                      {c.manutencoes.map((m, i) => (
+                        <li key={i}>
+                          {formatData(m.data_manutencao)} · {m.descricao} · {formatBRL(m.custo)}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : (
+                  <p className={styles.semManutencao}>Nenhuma manutencao registrada.</p>
+                )}
               </div>
 
               <div className={styles.acoes}>

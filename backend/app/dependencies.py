@@ -46,7 +46,7 @@ def obter_usuario_logado(
 
     return payload
 
- """
+"""
     Dependency para rotas que exigem um token gerado pelo
     login de USUARIO (ex: /carros, /anuncios, /vendas).
 

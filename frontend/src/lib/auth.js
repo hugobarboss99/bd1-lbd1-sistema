@@ -1,7 +1,20 @@
 const KEY = 'autotroca.session'
 
-export function saveSession(session) {
-  localStorage.setItem(KEY, JSON.stringify(session))
+function decodificarPayloadJWT(token) {
+  try {
+    const payloadBase64 = token.split('.')[1]
+    const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'))
+    return JSON.parse(payloadJson)
+  } catch {
+    return null
+  }
+}
+
+export function saveSession({ token, cpf, nome }) {
+  const payload = decodificarPayloadJWT(token)
+  const is_admin = payload?.tipo === 'ADMIN'
+
+  localStorage.setItem(KEY, JSON.stringify({ token, cpf, nome, is_admin }))
 }
 
 export function getSession() {
