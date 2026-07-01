@@ -119,3 +119,28 @@
   background: #ecfdf3;
   color: var(--success);
 }
+
+.manutencoes {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.manutencoes summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.manutencoes ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.semManutencao {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}

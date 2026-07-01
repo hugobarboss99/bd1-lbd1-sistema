@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { login as loginUsuario, loginAdmin } from '../lib/api.js'
-import { saveSession } from '../lib/auth.js'
+import { saveSession, getSession } from '../lib/auth.js'
 import styles from './Login.module.css'
 
 export default function Login() {
@@ -20,8 +20,13 @@ export default function Login() {
     setErro('')
     setEnviando(true)
     try {
-      const sessao = await autenticar(form)
-      saveSession(sessao)
+      const resposta = await autenticar(form)
+      // A resposta crua da API (LoginResponse) so tem token/cpf/nome - nao
+      // tem is_admin. saveSession decodifica o JWT e deriva is_admin a
+      // partir do campo "tipo" no payload; por isso relemos via
+      // getSession() em vez de usar "resposta" diretamente.
+      saveSession(resposta)
+      const sessao = getSession()
       navigate(sessao.is_admin ? '/admin/usuarios' : '/anuncios')
     } catch (e) {
       setErro(e.message)

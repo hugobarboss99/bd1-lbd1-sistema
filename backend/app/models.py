@@ -77,6 +77,7 @@ class CarroMeuResponse(BaseModel):
     cor: Optional[str]
     tem_anuncio_ativo: bool
     fotos: list[str]
+    manutencoes: list["ManutencaoResumo"]
 
 
 class AdicionarFotoRequest(BaseModel):

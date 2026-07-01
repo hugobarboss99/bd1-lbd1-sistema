@@ -18,6 +18,7 @@ from app.models import (
     CarroMeuResponse,
     AdicionarFotoRequest, AdicionarFotoResponse,
     ManutencaoRequest, ManutencaoResponse,
+    ManutencaoResumo,
 )
 
 router = APIRouter(prefix="/carros", tags=["Carros"])
@@ -111,6 +112,20 @@ def listar_meus_carros(usuario: dict = Depends(exigir_usuario)):
             )
             fotos = [linha[0] for linha in cursor.fetchall()]
 
+            cursor.execute(
+                """
+                SELECT descricao, custo, data_manutencao
+                FROM MANUTENCAO
+                WHERE chassi_carro = :chassi
+                ORDER BY sequencia_manutencao
+                """,
+                {"chassi": chassi},
+            )
+            manutencoes = [
+                ManutencaoResumo(descricao=desc, custo=custo, data_manutencao=data)
+                for desc, custo, data in cursor.fetchall()
+            ]
+
             resultado.append(
                 CarroMeuResponse(
                     chassi=chassi,
@@ -122,6 +137,7 @@ def listar_meus_carros(usuario: dict = Depends(exigir_usuario)):
                     cor=cor,
                     tem_anuncio_ativo=bool(tem_anuncio_ativo),
                     fotos=fotos,
+                    manutencoes=manutencoes,
                 )
             )
 
